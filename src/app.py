@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+
 import sqlite3
 import datetime
 import random
-from flask import Flask, jsonify, make_response, abort, url_for
+
+from flask import Flask, jsonify, make_response, abort, url_for, render_template
 
 app = Flask(__name__)
 
@@ -61,14 +63,20 @@ def get_random():
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
-def get():
-    conn = sqlite3.connect('../frases.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM JOKES')
-    jokes = []
-    for i in cursor.fetchall():
-        print(i)
 
+@app.route('/')
+def inicio():
+	return render_template("index.html")
+
+
+@app.route('/web', methods=['GET'])
+def getall():
+    conn = sqlite3.connect('frases.db')
+    cursor = conn.cursor()
+    sqlquery = 'SELECT value FROM JOKES'
+    cursor.execute(sqlquery)
+    return render_template("template.html",frases=cursor.fetchall())
+   
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port=5000)
