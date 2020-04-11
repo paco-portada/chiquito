@@ -4,7 +4,7 @@ import sqlite3
 import datetime
 import random
 
-from flask import Flask, jsonify, make_response, abort, url_for, render_template
+from flask import Flask, jsonify, make_response, abort, url_for, render_template, request
 
 app = Flask(__name__)
 
@@ -75,7 +75,16 @@ def getall():
     cursor = conn.cursor()
     sqlquery = 'SELECT value FROM JOKES'
     cursor.execute(sqlquery)
-    return render_template("template.html",frases=cursor.fetchall())
+    return render_template("template.html", frases=cursor.fetchall())
+
+@app.route('/web/search', methods=['POST'])
+def search():
+    text=request.form.get("palabra")
+    conn = sqlite3.connect('frases.db')
+    cursor = conn.cursor()
+    sqlquery = "SELECT value FROM JOKES WHERE value LIKE '%{}%'".format(text)
+    cursor.execute(sqlquery)
+    return render_template("template.html", frases=cursor.fetchall())
    
 
 if __name__ == '__main__':
